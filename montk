@@ -1,0 +1,19 @@
+#!/bin/sh
+
+MONTK=/usr/local/lib/montk
+export MONTK
+
+case "$PATH" in
+$MONTK/bin:*)
+	;;
+*)
+	PATH=$MONTK/bin:$PATH
+	export PATH
+	;;
+esac
+
+case $# in
+[1-9]*)
+       exec "$@"
+       ;;
+esac
