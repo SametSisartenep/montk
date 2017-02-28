@@ -3,7 +3,7 @@
 PREFIX = /usr/local
 MONTK = $(PREFIX)/lib/montk
 
-TOOLS = cpuperc sndvol thermal
+TOOLS = cpuperc memperc sndvol thermal
 BIN = montk
 
 all: tools
