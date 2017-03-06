@@ -1,4 +1,4 @@
-/*	$Antares: memperc.c,v 1.0 2017/02/28 01:13 sam Exp $	*/
+/*	$Antares: avol.c,v 1.0 2017/03/06 05:34 sam Exp $	*/
 
 /*
  * Copyright (c) 2017 Rodrigo González López
@@ -20,42 +20,49 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <alsa/asoundlib.h>
 
 #ifndef nil
 #define nil	((void*)0)
 #endif
 
-#define PROCMEMINFO	"/proc/meminfo"
-
-typedef unsigned long ulong;
+#define SNDCARD "default"
 
 int
 main(void)
 {
-	int perc;
-	ulong total, avail;
-	FILE *fp;
+	long max, min, vol;
+	snd_mixer_t *h;
+	snd_mixer_elem_t *elem;
+	snd_mixer_selem_id_t *selem;
 
-	fp = fopen(PROCMEMINFO, "r");
-	if (fp == nil) {
-		fprintf(stderr, "Failed to open %s\n", PROCMEMINFO);
+	snd_mixer_open(&h, 0);
+	snd_mixer_attach(h, SNDCARD);
+	snd_mixer_selem_register(h, nil, nil);
+	snd_mixer_load(h);
+	snd_mixer_selem_id_malloc(&selem);
+	snd_mixer_selem_id_set_name(selem, "Master");
+	elem = snd_mixer_find_selem(h, selem);
+
+	if (elem == nil) {
+		snd_mixer_selem_id_free(selem);
+		snd_mixer_free(h);
+		snd_mixer_detach(h, SNDCARD);
+		snd_mixer_close(h);
+		fprintf(stderr, "Failed to get volume from %s\n", SNDCARD);
 		return EXIT_FAILURE;
 	}
 
-	if (fscanf(fp, "MemTotal: %lu kB\n", &total) == EOF) {
-		fprintf(stderr, "Error processing input from %s\n", PROCMEMINFO);
-	}
+	snd_mixer_handle_events(h);
+	snd_mixer_selem_get_playback_volume_range(elem, &min, &max);
+	snd_mixer_selem_get_playback_volume(elem, 0, &vol);
 
-	if (fscanf(fp, "MemFree: %*d kB\nMemAvailable: %lu kB\n", &avail) == EOF) {
-		fprintf(stderr, "Error processing input from %s\n", PROCMEMINFO);
-	}
+	snd_mixer_selem_id_free(selem);
+	snd_mixer_free(h);
+	snd_mixer_detach(h, SNDCARD);
+	snd_mixer_close(h);
 
-	fclose(fp);
-
-	perc = 100 * (total - avail) / total;
-
-	printf("%d%%\n", perc);
+	printf("%ld%%\n", (vol * 100) / max);
 
 	return EXIT_SUCCESS;
 }

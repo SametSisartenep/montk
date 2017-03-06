@@ -1,8 +1,8 @@
 
 PREFIX = /usr/local
 
-SRC = cpuperc.c
-BIN = cpuperc
+SRC = cpu.c
+BIN = cpu
 
 CPPFLAGS = -D_FORTIFY_SOURCE=2 -D_DEFAULT_SOURCE -D_BSD_SOURCE \
 	-D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L -DVERSION=\"$(VERSION)\"

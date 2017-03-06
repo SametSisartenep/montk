@@ -1,4 +1,4 @@
-/*	$Antares: cpuperc.c,v 1.0 2017/02/26 21:10 sam Exp $	*/
+/*	$Antares: cpu.c,v 1.0 2017/03/05 18:36 sam Exp $	*/
 
 /*
  * Copyright (c) 2017 Rodrigo González López
@@ -26,10 +26,10 @@
 #define nil	((void*)0)
 #endif
 
+typedef long long vlong;
+
 #define PROCSTAT	"/proc/stat"
 #define DELAY		1
-
-typedef long long vlong;
 
 int
 main(void)
@@ -47,6 +47,8 @@ main(void)
 	if (fscanf(fp, "%*s %lld %lld %lld %lld",
 	           &a[0], &a[1], &a[2], &a[3]) == EOF) {
 		fprintf(stderr, "Error processing input from %s\n", PROCSTAT);
+		fclose(fp);
+		return EXIT_FAILURE;
 	}
 	fclose(fp);
 
@@ -61,6 +63,8 @@ main(void)
 	if (fscanf(fp, "%*s %lld %lld %lld %lld",
 	           &b[0], &b[1], &b[2], &b[3]) == EOF) {
 		fprintf(stderr, "Error processing input from %s\n", PROCSTAT);
+		fclose(fp);
+		return EXIT_FAILURE;
 	}
 	fclose(fp);
 
